@@ -1,13 +1,13 @@
 name: Build
 
 on:
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       tags:
         description: "Extra Tags: comma,separated"
         required: false
-  release:
-    types: [published]
 
 env:
   REGISTRY: "ghcr.io"
