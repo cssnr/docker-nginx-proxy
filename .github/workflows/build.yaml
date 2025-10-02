@@ -40,7 +40,6 @@ jobs:
         uses: cssnr/update-version-tags-action@v1
         with:
           tags: ${{ inputs.tags }}
-          dry_run: true
           prefix: ""
 
       - name: "Debug Version Tags"
