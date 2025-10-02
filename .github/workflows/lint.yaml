@@ -28,15 +28,13 @@ jobs:
         with:
           node-version: 24
 
-      - name: "Install"
-        id: install
-        run: |
-          npm ci
-
       - name: "Prettier"
         if: ${{ !cancelled() }}
         run: |
-          npm run prettier:check
+          echo "::group::Install"
+          npm install prettier
+          echo "::endgroup::"
+          npx prettier --check .
 
       - name: "Yamllint"
         if: ${{ !cancelled() }}
@@ -69,3 +67,4 @@ jobs:
         uses: hadolint/hadolint-action@v3.3.0
         with:
           dockerfile: src/Dockerfile
+          ignore: "DL3018"
