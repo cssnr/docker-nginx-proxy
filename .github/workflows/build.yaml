@@ -1,4 +1,4 @@
-name: Build
+name: "Build"
 
 on:
   workflow_dispatch:
@@ -9,42 +9,74 @@ on:
   release:
     types: [published]
 
-env:
-  REGISTRY: "ghcr.io"
-
 jobs:
   build:
     name: "Build"
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 10
+
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v4
-
-      - name: "Setup Buildx"
-        uses: docker/setup-buildx-action@v2
-        with:
-          platforms: linux/amd64,linux/arm64
+        uses: actions/checkout@v5
 
       - name: "Docker Login"
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ vars.GHCR_USER }}
           password: ${{ secrets.GHCR_PASS }}
 
-      - name: "Generate Tags"
-        id: tags
-        uses: smashedr/docker-tags-action@master
+      - name: "Setup Buildx"
+        uses: docker/setup-buildx-action@v3
         with:
-          images: "${{ env.REGISTRY }}/${{ github.repository }}"
-          extra: ${{ inputs.tags }}
+          platforms: linux/amd64,linux/arm64
+
+      - name: "Generate Version Tags"
+        id: version
+        uses: cssnr/update-version-tags-action@v1
+        with:
+          dry_run: true
+          tags: ${{ inputs.tags }}
+
+      - name: "Debug Version Tags"
+        continue-on-error: true
+        run: |
+          echo "github.ref_name: ${{ github.ref_name }}"
+          echo "steps.version.outputs.tags: ${{ steps.version.outputs.tags }}"
+
+      - name: "Generate Docker Tags"
+        id: tags
+        uses: smashedr/docker-tags-action@v1
+        with:
+          images: "ghcr.io/${{ github.repository }}"
+          tags: ${{ steps.version.outputs.tags }}
+
+      - name: "Debug Docker Tags"
+        continue-on-error: true
+        run: |
+          echo "github.ref_name: ${{ github.ref_name }}"
+          echo "tags: ${{ steps.tags.outputs.tags }}"
+          echo "labels: ${{ steps.tags.outputs.labels }}"
+          echo "annotations: ${{ steps.tags.outputs.annotations }}"
 
       - name: "Build and Push"
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
-          context: nginx
-          platforms: linux/amd64,linux/arm64
+          context: src
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: ${{ steps.tags.outputs.tags }}
+          labels: ${{ steps.tags.outputs.labels }}
+          annotations: ${{ steps.tags.outputs.annotations }}
+          build-args: |
+            NGINX_VERSION=${{ github.ref_name }}
+
+      - name: "Send Failure Notification"
+        if: ${{ failure() }}
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
