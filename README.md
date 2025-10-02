@@ -19,7 +19,7 @@
 
 Docker Nginx Proxy Container.
 
-Coming Soon...
+This works quite well as is...
 
 ## Examples
 
@@ -44,7 +44,26 @@ services:
     command: 'redis-server --appendonly yes'
 ```
 
-Same example, deployed to a [Docker Swarm](https://docs.docker.com/engine/swarm/) cluster using [Traefik](https://github.com/traefik/traefik).
+With the healthcheck:
+
+```yaml
+services:
+  nginx:
+    image: ghcr.io/cssnr/docker-nginx-proxy:latest
+    environment:
+      - SERVICE_NAME=app
+      - SERVICE_PORT=3000
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -sf localhost:80/health-check || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    ports:
+      - '${PORT:-80}:80'
+```
+
+First example, but deployed to a [Docker Swarm](https://docs.docker.com/engine/swarm/) cluster using [Traefik](https://github.com/traefik/traefik).
 
 ```yaml
 version: '3.8'
@@ -72,6 +91,12 @@ services:
         - traefik.http.routers.node-badges-https.entrypoints=https
         - traefik.http.routers.node-badges-https.tls=true
         - traefik.http.services.node-badges-https.loadbalancer.server.port=80
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -sf localhost:80/health-check || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     depends_on:
       - app
     networks:
@@ -121,3 +146,30 @@ networks:
   traefik-public:
     external: true
 ```
+
+## Support
+
+Please let us know if you run into any [issues](https://github.com/cssnr/docker-nginx-proxy/issues)
+or want to see [new features](https://github.com/cssnr/docker-nginx-proxy/discussions/categories/feature-requests)...
+
+For general help or to request a feature:
+
+- Q&A Discussion: https://github.com/cssnr/docker-nginx-proxy/discussions/categories/q-a
+- Request a Feature: https://github.com/cssnr/docker-nginx-proxy/discussions/categories/feature-requests
+
+If you are experiencing an issue/bug or getting unexpected results:
+
+- Report an Issue: https://github.com/cssnr/docker-nginx-proxy/issues
+- Chat with us on Discord: https://discord.gg/wXy6m2X8wY
+- Provide General Feedback: [https://cssnr.github.io/feedback/](https://cssnr.github.io/feedback/)
+
+# Contributing
+
+Please consider making a donation to support the development of this project
+and [additional](https://cssnr.com/) open source projects.
+
+[![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/cssnr)
+
+If you would like to submit a PR, please review the [CONTRIBUTING.md](#contributing-ov-file).
+
+For a full list of current projects visit: [https://cssnr.github.io/](https://cssnr.github.io/)
