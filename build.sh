@@ -51,6 +51,6 @@ docker build -t "${REGISTRY_HOST}/${REGISTRY_USER}/${REGISTRY_REPO}:${VERSION}" 
     --build-arg VERSION="${VERSION}" \
     "${BUILD_CONTEXT}"
 
-
+# --build-arg VERSION="${VERSION}" \
 
 #docker push "${REGISTRY_HOST}/${REGISTRY_USER}/${REGISTRY_REPO}:${VERSION}"
