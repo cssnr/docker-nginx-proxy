@@ -1,6 +1,8 @@
-[![Image Size](https://badges.cssnr.com/ghcr/size/cssnr/docker-nginx-proxy)](https://github.com/cssnr/docker-nginx-proxy/pkgs/container/node-badges)
-[![Image Latest](https://badges.cssnr.com/ghcr/tags/cssnr/docker-nginx-proxy/latest)](https://github.com/cssnr/docker-nginx-proxy/pkgs/container/node-badges)
+[![Image Size](https://badges.cssnr.com/ghcr/size/cssnr/docker-nginx-proxy)](https://github.com/cssnr/docker-nginx-proxy/pkgs/container/docker-nginx-proxy)
+[![Image Latest](https://badges.cssnr.com/ghcr/tags/cssnr/docker-nginx-proxy/latest)](https://github.com/cssnr/docker-nginx-proxy/pkgs/container/docker-nginx-proxy)
 [![Image Tags](https://badges.cssnr.com/ghcr/tags/cssnr/docker-nginx-proxy)](https://github.com/cssnr/docker-nginx-proxy/pkgs/container/node-badges)
+[![GitHub Tag Major](https://img.shields.io/github/v/tag/cssnr/docker-nginx-proxy?sort=semver&filter=!*.*&logo=git&logoColor=white&labelColor=585858&label=%20)](https://github.com/cssnr/docker-nginx-proxy/tags)
+[![GitHub Tag Minor](https://img.shields.io/github/v/tag/cssnr/docker-nginx-proxy?sort=semver&filter=!*.*.*&logo=git&logoColor=white&labelColor=585858&label=%20)](https://github.com/cssnr/docker-nginx-proxy/releases)
 [![GitHub Release Version](https://img.shields.io/github/v/release/cssnr/docker-nginx-proxy?logo=github)](https://github.com/cssnr/docker-nginx-proxy/releases/latest)
 [![Workflow Build](https://img.shields.io/github/actions/workflow/status/cssnr/docker-nginx-proxy/build.yaml?logo=cachet&label=build)](https://github.com/cssnr/docker-nginx-proxy/actions/workflows/build.yaml)
 [![Workflow Lint](https://img.shields.io/github/actions/workflow/status/cssnr/docker-nginx-proxy/lint.yaml?logo=cachet&label=lint)](https://github.com/cssnr/docker-nginx-proxy/actions/workflows/lint.yaml)
@@ -20,6 +22,20 @@
 Docker Nginx Proxy Container.
 
 This works quite well as is...
+
+```yaml
+services:
+  nginx:
+    image: ghcr.io/cssnr/docker-nginx-proxy:latest
+    environment:
+      - SERVICE_NAME=app # name of app container
+      - SERVICE_PORT=8000 # port exposed on app
+    ports:
+      - '${PORT:-80}:80' # Host PORT : Container (must be :80)
+
+  app:
+    image: your-app-image # listens on port 8000
+```
 
 ## Examples
 
@@ -81,16 +97,17 @@ services:
           cpus: '1.0'
           memory: 64M
       labels:
-        - traefik.enable=true
-        - traefik.docker.network=traefik-public
-        - traefik.constraint-label=traefik-public
-        - traefik.http.routers.node-badges-http.rule=Host(`badges.cssnr.com`)
-        - traefik.http.routers.node-badges-http.entrypoints=http
-        - traefik.http.routers.node-badges-http.middlewares=https-redirect
-        - traefik.http.routers.node-badges-https.rule=Host(`badges.cssnr.com`)
-        - traefik.http.routers.node-badges-https.entrypoints=https
-        - traefik.http.routers.node-badges-https.tls=true
-        - traefik.http.services.node-badges-https.loadbalancer.server.port=80
+        - 'traefik.enable=true'
+        - 'traefik.docker.network=traefik-public'
+        - 'traefik.constraint-label=traefik-public'
+        - 'traefik.http.routers.${STACK_NAME?err}-http.rule=Host(`${TRAEFIK_HOST?err}`)'
+        - 'traefik.http.routers.${STACK_NAME}-http.entrypoints=http'
+        - 'traefik.http.routers.${STACK_NAME}-http.middlewares=https-redirect'
+        - 'traefik.http.routers.${STACK_NAME}-https.rule=Host(`${TRAEFIK_HOST}`)'
+        - 'traefik.http.routers.${STACK_NAME}-https.entrypoints=https'
+        - 'traefik.http.routers.${STACK_NAME}-https.tls=true'
+        - 'traefik.http.services.${STACK_NAME}.loadbalancer.server.port=80'
+        - 'traefik.http.services.${STACK_NAME}.loadbalancer.server.scheme=http'
     healthcheck:
       test: ['CMD-SHELL', 'curl -sf localhost:80/health-check || exit 1']
       interval: 30s
@@ -104,7 +121,7 @@ services:
       - traefik-public
 
   app:
-    image: ghcr.io/smashedr/node-badges:latest
+    image: ghcr.io/smashedr/node-badges:${VERSION:-latest}
     command: 'npm start'
     deploy:
       mode: global
