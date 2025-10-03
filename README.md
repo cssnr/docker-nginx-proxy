@@ -23,6 +23,20 @@ Docker Nginx Proxy Container.
 
 This works quite well as is...
 
+```yaml
+services:
+  nginx:
+    image: ghcr.io/cssnr/docker-nginx-proxy:latest
+    environment:
+      - SERVICE_NAME=app # name of app container
+      - SERVICE_PORT=8000 # port exposed on app
+    ports:
+      - '${PORT:-80}:80' # Host PORT : Container (must be :80)
+
+  app:
+    image: your-app-image # listens on port 8000
+```
+
 ## Examples
 
 If your app container is called `app` and listens on `3000` this will reverse proxy it to the `PORT` exposed on nginx.
