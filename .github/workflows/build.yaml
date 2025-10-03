@@ -1,7 +1,7 @@
 name: "Build"
 
 on:
-  # NOTE: workflow_dispatch no longer works because NGINX_VERSION=${{ github.ref_name }}
+  # NOTE: workflow_dispatch no longer works because arg VERSION=${{ github.ref_name }}
   #workflow_dispatch:
   #  inputs:
   #    tags:
@@ -51,7 +51,7 @@ jobs:
 
       - name: "Generate Docker Tags"
         id: tags
-        uses: smashedr/docker-tags-action@v1
+        uses: cssnr/docker-tags-action@v1
         with:
           images: "ghcr.io/${{ github.repository }}"
           tags: ${{ steps.version.outputs.tags }}
@@ -74,7 +74,7 @@ jobs:
           labels: ${{ steps.tags.outputs.labels }}
           annotations: ${{ steps.tags.outputs.annotations }}
           build-args: |
-            NGINX_VERSION=${{ github.ref_name }}
+            VERSION=${{ github.ref_name }}
 
       - name: "Send Failure Notification"
         if: ${{ failure() }}

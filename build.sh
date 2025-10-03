@@ -6,20 +6,29 @@ REGISTRY_HOST="ghcr.io"
 REGISTRY_USER="cssnr"
 REGISTRY_REPO="docker-nginx-proxy"
 
+DEFAULT_VERSION="mainline"
+BUILD_CONTEXT="src"
+
+
 if [ -f ".env" ];then
     echo "Sourcing Environment: .env"
+    set -a
     source ".env"
+    set +a
 fi
 
 if [ -z "${VERSION}" ];then
-    if [ -z "${1}" ];then
-        read -rp "Version (latest): " VERSION
-    else
+    if [ -n "${1}" ];then
         VERSION="${1}"
+    else
+        read -rp "Version (${DEFAULT_VERSION}): " VERSION
     fi
 fi
 
-[[ -z "${VERSION}" ]] && VERSION="latest"
+[[ -z "${VERSION}" ]] && VERSION="${DEFAULT_VERSION}"
+
+echo "${REGISTRY_HOST}/${REGISTRY_USER}/${REGISTRY_REPO}:${VERSION}"
+
 
 #if [ -z "${USERNAME}" ];then
 #    read -rp "Username: " USERNAME
@@ -27,18 +36,21 @@ fi
 #if [ -z "${PASSWORD}" ];then
 #    read -rp "Password: " PASSWORD
 #fi
-
-echo "${REGISTRY_HOST}/${REGISTRY_USER}/${REGISTRY_REPO}:${VERSION}"
-
+#
 #docker login --username "${USERNAME}" --password "${PASSWORD}" "${REGISTRY_HOST}"
 #docker login "${REGISTRY_HOST}"
 
+
 #docker buildx create --use
-#docker buildx build --platform linux/amd64,linux/arm64 \
-#    -t "${REGISTRY_HOST}/${REGISTRY_USER}/${REGISTRY_REPO}:${VERSION}" nginx
+#docker buildx build -t "${REGISTRY_HOST}/${REGISTRY_USER}/${REGISTRY_REPO}:${VERSION}" \
+#    --platform linux/amd64,linux/arm64 \
+#    --build-arg VERSION="${VERSION}" \
+#    "${BUILD_CONTEXT}"
 
-docker build -t "${REGISTRY_HOST}/${REGISTRY_USER}/${REGISTRY_REPO}:${VERSION}" src
+docker build -t "${REGISTRY_HOST}/${REGISTRY_USER}/${REGISTRY_REPO}:${VERSION}" \
+    --build-arg VERSION="${VERSION}" \
+    "${BUILD_CONTEXT}"
 
-#--build-arg NGINX_VERSION="${VERSION}" \
+
 
 #docker push "${REGISTRY_HOST}/${REGISTRY_USER}/${REGISTRY_REPO}:${VERSION}"
