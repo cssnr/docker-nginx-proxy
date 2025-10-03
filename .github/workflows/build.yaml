@@ -1,11 +1,12 @@
 name: "Build"
 
 on:
-  workflow_dispatch:
-    inputs:
-      tags:
-        description: "Extra Tags: comma,separated"
-        required: false
+  # NOTE: workflow_dispatch no longer works because NGINX_VERSION=${{ github.ref_name }}
+  #workflow_dispatch:
+  #  inputs:
+  #    tags:
+  #      description: "Extra Tags: comma,separated"
+  #      required: false
   release:
     types: [published]
 
@@ -39,8 +40,8 @@ jobs:
         id: version
         uses: cssnr/update-version-tags-action@v1
         with:
-          tags: ${{ inputs.tags }}
           prefix: ""
+          #tags: ${{ inputs.tags }}
 
       - name: "Debug Version Tags"
         continue-on-error: true
