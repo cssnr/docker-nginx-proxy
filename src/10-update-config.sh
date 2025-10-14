@@ -13,6 +13,16 @@ echo "SERVICE_PORT: ${SERVICE_PORT}"
 sed "s/SERVICE_PORT/${SERVICE_PORT}/g" -i /etc/nginx/nginx.conf
 sed "s/SERVICE_NAME/${SERVICE_NAME}/g" -i /etc/nginx/nginx.conf
 
+if [ -n "${GZIP_TYPES}" ];then
+echo "GZIP_TYPES: ${GZIP_TYPES}"
+cat <<EOF > /etc/nginx/conf.d/http.gzip.conf
+gzip            on;
+gzip_min_length 1000;
+gzip_proxied    any;
+gzip_types      ${GZIP_TYPES};
+EOF
+fi
+
 echo "${0} - Done"
 
 nginx -version ||:
