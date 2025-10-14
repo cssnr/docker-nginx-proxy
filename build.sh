@@ -17,17 +17,18 @@ if [ -f ".env" ];then
     set +a
 fi
 
-if [ -z "${VERSION}" ];then
-    if [ -n "${1}" ];then
-        VERSION="${1}"
-    else
-        read -rp "Version (${DEFAULT_VERSION}): " VERSION
-    fi
-fi
+VERSION="${1}"
+#if [ -z "${VERSION}" ];then
+#    if [ -n "${1}" ];then
+#        VERSION="${1}"
+#    else
+#        read -rp "Version (${DEFAULT_VERSION}): " VERSION
+#    fi
+#fi
 
 [[ -z "${VERSION}" ]] && VERSION="${DEFAULT_VERSION}"
 
-echo "${REGISTRY_HOST}/${REGISTRY_USER}/${REGISTRY_REPO}:${VERSION}"
+echo "${REGISTRY_HOST}/${REGISTRY_USER}/${REGISTRY_REPO}:latest"
 
 
 #if [ -z "${USERNAME}" ];then
@@ -47,8 +48,9 @@ echo "${REGISTRY_HOST}/${REGISTRY_USER}/${REGISTRY_REPO}:${VERSION}"
 #    --build-arg VERSION="${VERSION}" \
 #    "${BUILD_CONTEXT}"
 
-docker build -t "${REGISTRY_HOST}/${REGISTRY_USER}/${REGISTRY_REPO}:${VERSION}" \
-    --build-arg VERSION="${VERSION}" \
+docker build -t "${REGISTRY_HOST}/${REGISTRY_USER}/${REGISTRY_REPO}:latest" \
+    --build-arg VERSION="latest" \
+    --build-arg NGINX_VERSION="${VERSION}" \
     "${BUILD_CONTEXT}"
 
 # --build-arg VERSION="${VERSION}" \
