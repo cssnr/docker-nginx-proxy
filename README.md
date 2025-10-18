@@ -37,6 +37,34 @@ services:
     image: your-app-image # listens on port 8000
 ```
 
+## Options
+
+| Variable     |    Default     | Description&nbsp;of&nbsp;Environment&nbsp;Variable |
+| :----------- | :------------: | :------------------------------------------------- |
+| SERVICE_NAME |     `app`      | Hostname (service name) of container               |
+| SERVICE_PORT |     `8000`     | Port service/container is listening on             |
+| GZIP_TYPES   |       -        | Nginx content gzip_types to compress               |
+| GZIP_LENGTH  |     `1000`     | Minimum content size to compress                   |
+| BASIC_AUTH   |       -        | Basic auth file contents                           |
+| BASIC_REALM  | `Unauthorized` | Minimum content size to compress                   |
+
+#### Basic Auth
+
+```shell
+$ htpasswd -nb user pass
+user:$apr1$XFVN0nJA$IgZxtMHVAeA.Pu7ufU7/I0
+```
+
+Replace all `$` with `$$` for docker-compose.yaml files.  
+Use `\n` for newlines to add multiple credentials.
+
+```yaml
+environment:
+  BASIC_AUTH: 'user:$apr1$XFVN0nJA$IgZxtMHVAeA.Pu7ufU7/I0\nuser2:$apr1$vswJgdwo$2XkDOrvJFQ2pKwrXqGeWM0'
+```
+
+AI is Retarded.
+
 ## Examples
 
 If your app container is called `app` and listens on `3000` this will reverse proxy it to the `PORT` exposed on nginx.
