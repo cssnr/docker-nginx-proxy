@@ -1,8 +1,8 @@
 [![Image Size](https://badges.cssnr.com/ghcr/size/cssnr/docker-nginx-proxy)](https://github.com/cssnr/docker-nginx-proxy/pkgs/container/docker-nginx-proxy)
 [![Image Latest](https://badges.cssnr.com/ghcr/tags/cssnr/docker-nginx-proxy/latest)](https://github.com/cssnr/docker-nginx-proxy/pkgs/container/docker-nginx-proxy)
-[![Image Tags](https://badges.cssnr.com/ghcr/tags/cssnr/docker-nginx-proxy)](https://github.com/cssnr/docker-nginx-proxy/pkgs/container/node-badges)
 [![GitHub Tag Major](https://img.shields.io/github/v/tag/cssnr/docker-nginx-proxy?sort=semver&filter=!*.*&logo=git&logoColor=white&labelColor=585858&label=%20)](https://github.com/cssnr/docker-nginx-proxy/tags)
 [![GitHub Tag Minor](https://img.shields.io/github/v/tag/cssnr/docker-nginx-proxy?sort=semver&filter=!*.*.*&logo=git&logoColor=white&labelColor=585858&label=%20)](https://github.com/cssnr/docker-nginx-proxy/releases)
+[![GitHub Tag Release](https://img.shields.io/github/v/tag/cssnr/docker-nginx-proxy?sort=semver&filter=!*.*.*.*&logo=git&logoColor=white&labelColor=585858&label=%20)](https://github.com/cssnr/docker-nginx-proxy/releases/latest)
 [![GitHub Release Version](https://img.shields.io/github/v/release/cssnr/docker-nginx-proxy?logo=github)](https://github.com/cssnr/docker-nginx-proxy/releases/latest)
 [![Workflow Build](https://img.shields.io/github/actions/workflow/status/cssnr/docker-nginx-proxy/build.yaml?logo=cachet&label=build)](https://github.com/cssnr/docker-nginx-proxy/actions/workflows/build.yaml)
 [![Workflow Lint](https://img.shields.io/github/actions/workflow/status/cssnr/docker-nginx-proxy/lint.yaml?logo=cachet&label=lint)](https://github.com/cssnr/docker-nginx-proxy/actions/workflows/lint.yaml)
@@ -60,7 +60,7 @@ Use `\n` for newlines to add multiple credentials.
 
 ```yaml
 environment:
-  BASIC_AUTH: 'user:$apr1$XFVN0nJA$IgZxtMHVAeA.Pu7ufU7/I0\nuser2:$apr1$vswJgdwo$2XkDOrvJFQ2pKwrXqGeWM0'
+  BASIC_AUTH: 'user:$$apr1$$XFVN0nJA$$IgZxtMHVAeA.Pu7ufU7/I0\nuser2:$$apr1$$vswJgdwo$$2XkDOrvJFQ2pKwrXqGeWM0'
 ```
 
 AI is Retarded.
@@ -130,7 +130,9 @@ services:
         - 'traefik.constraint-label=traefik-public'
         - 'traefik.http.routers.${STACK_NAME?err}-http.rule=Host(`${TRAEFIK_HOST?err}`)'
         - 'traefik.http.routers.${STACK_NAME}-http.entrypoints=http'
-        - 'traefik.http.routers.${STACK_NAME}-http.middlewares=https-redirect'
+        - 'traefik.http.routers.${STACK_NAME}-http.middlewares=${STACK_NAME}-http-redirect'
+        - 'traefik.http.middlewares.${STACK_NAME}-http-redirect.redirectscheme.scheme=https'
+        - 'traefik.http.middlewares.${STACK_NAME}-http-redirect.redirectscheme.permanent=true'
         - 'traefik.http.routers.${STACK_NAME}-https.rule=Host(`${TRAEFIK_HOST}`)'
         - 'traefik.http.routers.${STACK_NAME}-https.entrypoints=https'
         - 'traefik.http.routers.${STACK_NAME}-https.tls=true'
