@@ -76,6 +76,9 @@ jobs:
         run: |
           echo "NGINX_VERSION: ${{ steps.semver.outputs.release }}"
 
+      - name: "Setup QEMU"
+        uses: docker/setup-qemu-action@v4
+
       - name: "Build and Push"
         uses: docker/build-push-action@v7
         with:
