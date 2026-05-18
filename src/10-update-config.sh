@@ -27,8 +27,10 @@ if [ -n "${BASIC_AUTH}" ];then
 echo "BASIC_AUTH: ${BASIC_AUTH}"
 printf '%s' "${BASIC_AUTH}" > /etc/nginx/auth.users
 cat <<EOF > /etc/nginx/conf.d/location.auth.conf
-auth_basic            "${BASIC_REALM:-Unauthorized}";
-auth_basic_user_file  /etc/nginx/auth.users;
+limit_except OPTIONS {
+    auth_basic            "${BASIC_REALM:-Unauthorized}";
+    auth_basic_user_file  /etc/nginx/auth.users;
+}
 EOF
 fi
 

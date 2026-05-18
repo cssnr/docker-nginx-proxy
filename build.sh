@@ -30,6 +30,7 @@ VERSION="${1}"
 
 echo "${REGISTRY_HOST}/${REGISTRY_USER}/${REGISTRY_REPO}:latest"
 
+#read -rp "Press <enter> to run docker build..."
 
 #if [ -z "${USERNAME}" ];then
 #    read -rp "Username: " USERNAME
